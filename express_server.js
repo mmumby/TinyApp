@@ -47,7 +47,16 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortLink}`);
 });
 
-// redirects to the long URL if the short URL is entered
+//delete URL's using delete button
+app.post("/urls/:id/delete", (req, res) => {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+    console.log(req.params.id);
+  });
+
+
+
+// checks if shortURL redirects to longURL
 app.get("/u/:shortURL", (req, res) => {
    let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
