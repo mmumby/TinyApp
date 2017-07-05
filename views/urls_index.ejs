@@ -6,13 +6,15 @@
 </head>
 <body>
     <ul>
+    //iterate through URLS and list all new additions.
+    // also include edit link to list and delete button
     <% for (let url in urls ) { %>
-<li><%= url %> - <%= urls[url]; %><form method="POST" action="/urls/<%= url %>/delete">
+<li><%= url %> - <%= urls[url]; %> <a href="/urls/<%= url %>">edit</a><form method="POST" action="/urls/<%= url %>/delete">
       <button type="submit">Delete <%= url %></button>
     </form></li>
    <% }; %>
     </ul>
-    <a href="url">link text</a>
+
 
 
 </body>
