@@ -43,9 +43,6 @@ const userDatabase = {
     password: "dishwasher-funk"
   }
 }
-// function matchUser(email, password) {
-//   return userDatabase.find((user) => (user["email"] === email ) && (user["password"] === password));
-// }
 // shows url input form
 app.get("/urls/new", (req, res) => {
   let templateVars = {
