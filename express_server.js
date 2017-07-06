@@ -43,7 +43,9 @@ const userDatabase = {
     password: "dishwasher-funk"
   }
 }
-
+// function matchUser(email, password) {
+//   return userDatabase.find((user) => (user["email"] === email ) && (user["password"] === password));
+// }
 // shows url input form
 app.get("/urls/new", (req, res) => {
   let templateVars = {
@@ -80,14 +82,23 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-//save cookies and show username
+//check to see if account already exists, if so login.
 app.post("/login", (req, res) => {
-  res.redirect("/urls");
+  for (var user in userDatabase) {
+    var regUser = userDatabase[user];
+  if((req.body.email === regUser["email"]) && (req.body.password === regUser["password"])) {
+    res.cookie("user_id", regUser["id"]);
+    res.redirect("/urls");
+  } else {
+    res.status(403).send('Invalid Input');
+    return;
+  }
+  }
 });
 
 //endpoint, after logout button is clicked cookies are cleared and redirects to /urls
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -135,8 +146,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/urls", (req, res) =>{
   let templateVars = { urls: urlDatabase,
                        user: userDatabase[req.cookies["user_id"]]
-
-                     };
+                      };
   res.render("urls_index", templateVars);
 });
 
