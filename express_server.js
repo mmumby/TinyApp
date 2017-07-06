@@ -25,11 +25,26 @@ function generateRandomString() {
   }
   return randomString;
 }
+
 // database for short and long URLS
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+//database for user information (hardcoded for now)
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
 // shows url input form
 app.get("/urls/new", (req, res) => {
   let templateVars = {
@@ -37,52 +52,79 @@ app.get("/urls/new", (req, res) => {
   };
   res.render("urls_new", templateVars);
 });
+
 // calls on function to shorten URL and redirects to url_index page
 app.post("/urls", (req, res) => {
   const shortLink = generateRandomString();
   urlDatabase[shortLink] = req.body.longURL;
-  const retest = /^https?:\/\//;
   // corrects URL to include https:// if not already entered
-  if (urlDatabase[shortLink] !== /^https?:\/\//) {
-    urlDatabase[shortLink] = `https://${urlDatabase[shortLink]}`;
-  }
+    if (urlDatabase[shortLink] !== /^https?:\/\//) {
+      urlDatabase[shortLink] = `https://${urlDatabase[shortLink]}`;
+    }
+
   //redirect to /url/:id page to show short and Long URLs
   res.redirect(`/urls/${shortLink}`);
 });
+
 //delete URL's using delete button
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
+
 // Post request to update longURL and redirect to /urls
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
+    if (urlDatabase[req.params.id] !== /^https?:\/\//) {
+      urlDatabase[req.params.id] = `https://${urlDatabase[req.params.id]}`;
+    }
   res.redirect("/urls");
 });
+
 //save cookies and show username
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
+
 //endpoint, after logout button is clicked cookies are cleared and redirects to /urls
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
 });
+
+app.post("/register", (req, res) => {
+  res.cookie("email", req.body.email);
+  res.cookie("password", req.body.password);
+  res.redirect("/urls");
+});
+
+//register endpoint
+app.get('/register', (req, res) => {
+  res.render("url_register");
+});
+
 // checks if shortURL redirects to longURL
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 app.get("/urls", (req, res) =>{
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase,
+                       username: req.cookies["username"]
+                     };
   res.render("urls_index", templateVars);
 });
+
 //once redirected to this page, the shortURL and longURL are shown in a list.
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, lURL: urlDatabase[req.params.id], username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.id,
+                       lURL: urlDatabase[req.params.id],
+                       username: req.cookies["username"]
+                     };
   res.render("urls_show", templateVars);
 });
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

@@ -5,8 +5,8 @@
   <title>TinyURL</title>
 </head>
 <body>
-<header>TinyApp</header>
-<h1><%= username %></h1>
+<h1>TinyApp</h1>
+<h4><%= username %></h4>
 <% if (!username) { %>
   <form method="POST" action="/login">
     <input type="text" name="username" placeholder="Username">
