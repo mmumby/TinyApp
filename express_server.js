@@ -1,17 +1,18 @@
 
+
 const express = require("express");
+const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const app = express();
 app.set("view engine", "ejs");
 //default port 8080
 const PORT = process.env.PORT || 3000;
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-
 ////////////////////////////////////////////////
-//////// Global functions
+//////// Global functions & variables
 ///////////////////////////////////////////////
 
 
@@ -55,7 +56,8 @@ const userDatabase = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "one"
+    password: bcrypt.hashSync("one", 10)
+
   },
  "user2RandomID": {
     id: "user2RandomID",
@@ -100,9 +102,12 @@ app.post("/urls/:id", (req, res) => {
 
 //check to see if account already exists, if so login.
 app.post("/login", (req, res) => {
+const textPassword = req.body.password;
+const hashed_password = bcrypt.hashSync(textPassword, 10);
+  // const bcryptPassword = bcrypt.compareSync('textPassword', hashed_password);
   for (var user in userDatabase) {
     var regUser = userDatabase[user];
-  if((req.body.email === regUser["email"]) && (req.body.password === regUser["password"])) {
+  if((req.body.email === regUser["email"]) && (bcrypt.compareSync(textPassword, hashed_password))) {
     res.cookie("user_id", regUser["id"]);
     res.redirect("/urls");
     return;
@@ -121,8 +126,10 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+const textPassword = req.body.password;
+const hashed_password = bcrypt.hashSync(textPassword, 10);
   //Must enter both email and password
-  if((req.body.email && req.body.password) === "") {
+  if((req.body.email && hashed_password) === "") {
     res.status(400).send('Invalid submission');
     return;
   }
@@ -138,11 +145,12 @@ app.post("/register", (req, res) => {
   userDatabase[ID] = {
     id: ID,
     email: req.body.email,
-    password: req.body.password
+    password: hashed_password
   };
   res.cookie("user_id", ID);
   res.redirect("/urls");
 });
+console.log(userDatabase);
 
 /////////////////////////////////////
 ///// Get requests
@@ -167,7 +175,8 @@ app.get('/register', (req, res) => {
 // login page
 app.get('/login', (req, res) => {
   let templateVars = {
-    user: userDatabase[req.cookies["user_id"]]
+    user: userDatabase[req.cookies["user_id"]],
+    password: userDatabase[bcrypt.hashSync("password", 10)]
   };
   res.render("urls_login", templateVars);
 })
