@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
@@ -7,6 +8,12 @@ const PORT = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+
+
+////////////////////////////////////////////////
+//////// Global functions
+///////////////////////////////////////////////
+
 
 //function to generate random 6 character string
 function generateRandomString() {
@@ -19,19 +26,18 @@ function generateRandomString() {
   return randomString;
 }
 //itterates over url db and returns all urls for a user
-//in an obj formatted the same as url db
 function urlsForUser(id) {
-  var userURLS = {}; //sets up userUrls
+  var userURLS = {};
   for (var shortURL in urlDatabase) {
-    //does current url Objs user id  === the user id passed in?
     if(urlDatabase[shortURL].id === id) {
-      //assign userUrls a new property at the short url (as a key) to the obj that is urlDb[key]
       userURLS[shortURL] = urlDatabase[shortURL];
     }
   }
 return userURLS;
 }
-
+///////////////////////////////////////////
+////// Databases
+//////////////////////////////////////////
 
 // database for short and long URLS
 const urlDatabase = {
@@ -58,13 +64,9 @@ const userDatabase = {
   }
 }
 
-// shows url input form
-app.get("/urls/new", (req, res) => {
-  let templateVars = {
-    user: userDatabase[req.cookies["user_id"]]
-  };
-  res.render("urls_new", templateVars);
-});
+//////////////////////////////////////////////
+//////// Post requests
+/////////////////////////////////////////////
 
 // calls on function to shorten URL and redirects to url_index page
 app.post("/urls", (req, res) => {
@@ -103,11 +105,13 @@ app.post("/login", (req, res) => {
   if((req.body.email === regUser["email"]) && (req.body.password === regUser["password"])) {
     res.cookie("user_id", regUser["id"]);
     res.redirect("/urls");
-  } else {
-    res.status(403).send('Invalid Input');
     return;
   }
   }
+
+
+    res.status(403).send('Invalid Input');
+    return;
 });
 
 //endpoint, after logout button is clicked cookies are cleared and redirects to /urls
@@ -140,6 +144,21 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
+/////////////////////////////////////
+///// Get requests
+////////////////////////////////////
+
+app.get("/", (req, res) => {
+
+});
+
+// shows url input form
+app.get("/urls/new", (req, res) => {
+  let templateVars = {
+    user: userDatabase[req.cookies["user_id"]]
+  };
+  res.render("urls_new", templateVars);
+});
 //register endpoint
 app.get('/register', (req, res) => {
   res.render("url_register");
@@ -158,7 +177,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL.longURL);
 });
 app.get("/urls", (req, res) =>{
-  let templateVars = { urls: urlDatabase,
+  let templateVars = { urls: urlsForUser(req.cookies["user_id"]),
                        user: userDatabase[req.cookies["user_id"]]
                       };
   res.render("urls_index", templateVars);
