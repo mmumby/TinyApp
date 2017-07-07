@@ -1,10 +1,3 @@
-//store longURL that came in from form URL/new
-//generate shortURL using function
-//store shortURL in variable
-
-
-// "use strict";
-
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
@@ -27,8 +20,16 @@ function generateRandomString() {
 }
 // database for short and long URLS
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    shortURL: "b2xVn2",
+    userID: "userRandomID"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    shortURL: "9sm5xK",
+    userID: "user2RandomID"
+  }
 };
 //database for user information (hardcoded for now)
 const userDatabase = {
@@ -150,7 +151,7 @@ app.get("/urls", (req, res) =>{
 //once redirected to this page, the shortURL and longURL are shown in a list.
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
-                       lURL: urlDatabase[req.params.id],
+                       lURL: urlDatabase[req.params.id].longURL,
                        user: userDatabase[req.cookies["user_id"]]
                      };
   res.render("urls_show", templateVars);
