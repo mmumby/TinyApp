@@ -18,17 +18,30 @@ function generateRandomString() {
   }
   return randomString;
 }
+//itterates over url db and returns all urls for a user
+//in an obj formatted the same as url db
+function urlsForUser(id) {
+  var userURLS = {}; //sets up userUrls
+  for (var shortURL in urlDatabase) {
+    //does current url Objs user id  === the user id passed in?
+    if(urlDatabase[shortURL].id === id) {
+      //assign userUrls a new property at the short url (as a key) to the obj that is urlDb[key]
+      userURLS[shortURL] = urlDatabase[shortURL];
+    }
+  }
+return userURLS;
+}
+
+
 // database for short and long URLS
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    shortURL: "b2xVn2",
-    userID: "userRandomID"
+    id: "userRandomID"
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    shortURL: "9sm5xK",
-    userID: "user2RandomID"
+    id: "user2RandomID"
   }
 };
 //database for user information (hardcoded for now)
@@ -36,14 +49,15 @@ const userDatabase = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "one"
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "two"
   }
 }
+
 // shows url input form
 app.get("/urls/new", (req, res) => {
   let templateVars = {
@@ -56,26 +70,28 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortLink = generateRandomString();
   urlDatabase[shortLink] = req.body.longURL;
-  // corrects URL to include https:// if not already entered
     if (urlDatabase[shortLink] !== /^https?:\/\//) {
       urlDatabase[shortLink] = `https://${urlDatabase[shortLink]}`;
-    }
-
-  //redirect to /url/:id page to show short and Long URLs
+  }
   res.redirect(`/urls/${shortLink}`);
 });
 
-//delete URL's using delete button
+//delete URL's using delete button ONLY if user ID's match
 app.post("/urls/:id/delete", (req, res) => {
+if (urlDatabase[req.params.id].id === req.cookies["user_id"]){
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
+} else {
+  res.status(400).send('You do not have permission to delete this URL');
+    return;
+}
 });
 
 // Post request to update longURL and redirect to /urls
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
-    if (urlDatabase[req.params.id] !== /^https?:\/\//) {
-      urlDatabase[req.params.id] = `https://${urlDatabase[req.params.id]}`;
+  urlDatabase[req.params.id].longURL = req.body.longURL;
+    if (urlDatabase[req.params.id].longURL !== /^https?:\/\//) {
+      urlDatabase[req.params.id].longURL = `https://${urlDatabase[req.params.id].longURL}`;
     }
   res.redirect("/urls");
 });
@@ -139,7 +155,7 @@ app.get('/login', (req, res) => {
 // checks if shortURL redirects to longURL
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  res.redirect(longURL.longURL);
 });
 app.get("/urls", (req, res) =>{
   let templateVars = { urls: urlDatabase,
@@ -151,7 +167,7 @@ app.get("/urls", (req, res) =>{
 //once redirected to this page, the shortURL and longURL are shown in a list.
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
-                       lURL: urlDatabase[req.params.id].longURL,
+                       longURL: urlDatabase[req.params.id],
                        user: userDatabase[req.cookies["user_id"]]
                      };
   res.render("urls_show", templateVars);
