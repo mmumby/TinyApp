@@ -4,12 +4,10 @@
   <% include ./partials/_header %>
   <title>TinyURL</title>
 </head>
-<body>
+<body style="font-size:20px; padding:50px;">
 <% if (!user) { %>
 <% } else { %>
     <ul>
-    <!--iterate through URLS and list all new additions.
-     also include edit link to list and delete button -->
       <% for (let url in urls ) { %>
         <li><%= url %> - <%= urls[url].longURL %>
           <a href="/urls/<%= url %>">edit</a>
@@ -19,6 +17,7 @@
         </li>
       <% }; %>
     </ul>
+    <h4>Create a new<a href="/urls/new"> ShortURL!</a>  </h4>
     <% }; %>
 </body>
 </html>

@@ -4,13 +4,14 @@
   <% include ./partials/_header %>
   <title>TinyURL</title>
 </head>
-<body>
+<body style="font-size:20px; padding:50px;">
   <ul>
-    <li> ShortURL: <%= shortURL %></li>
+    <li> Short Version: <%= shortURL %></li>
+    <li> Long Version: <%= longURL %></li>
     <form method="POST" action="/urls/<%= shortURL %>">
       <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
       <button type="submit">Update</button>
-      </form>
+    </form>
   </ul>
 </body>
 </html>

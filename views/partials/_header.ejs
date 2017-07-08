@@ -10,6 +10,7 @@
   <a href="/register">Register</a>
   <a href="/login">Login</a>
 <% } else { %>
+<p>Welcome, <%= user.email %></p>
  <form method="POST" action="/logout">
  <button name="user_id" type="submit">Logout</button>
 </form>
