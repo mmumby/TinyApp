@@ -11,6 +11,9 @@ const bcrypt = require('bcrypt');
 app.set('view engine', 'ejs');
 //listening on port 3000
 const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
 //enable encrypted cookies
 const cookieSession = require('cookie-session');
@@ -116,44 +119,54 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-//check to see if account already exists, if so login.
+//check to see if account already exists, if so login, else redirect.
 app.post("/login", (req, res) => {
   const textPassword = req.body.password;
   const hashed_password = bcrypt.hashSync(textPassword, 10);
+  let cookieID = req.session.user_id;
+  let templateVars = { urls: urlsForUser(cookieID),
+    user: userDatabase[cookieID]
+  };
   for (let user in userDatabase) {
     let regUser = userDatabase[user];
-    if((req.body.email === regUser["email"]) && (bcrypt.compareSync(textPassword, hashed_password))) {
+    if((req.body.email === regUser["email"]) && (bcrypt.compareSync(textPassword, regUser["password"]))) {
       req.session.user_id = regUser["id"];
       res.redirect("/urls");
       return;
     }
   }
-  res.status(403).send('Invalid Input');
+  res.status(403).render("error403", templateVars);
   return;
 });
-
 //endpoint, after logout button is clicked cookies are cleared and redirects to login page
 app.post("/logout", (req, res) => {
   req.session.user_id = null;
   res.redirect("/login");
 });
 
+//hash password
 app.post("/register", (req, res) => {
   const textPassword = req.body.password;
   const hashed_password = bcrypt.hashSync(textPassword, 10);
+
+  let cookieID = req.session.user_id;
+  let templateVars = { user: userDatabase[cookieID],
+    urls: urlsForUser(cookieID)
+  };
   //Must enter both email and password to register
-  if((req.body.email && hashed_password) === "") {
-    res.status(400).send('Invalid submission');
+  if((req.body.email && textPassword) === "") {
+    res.status(400).render("error_400", templateVars);
     return;
   }
   // cannot continue if email already exists
   for (let userid in userDatabase) {
     let user = userDatabase[userid];
     if( user["email"] === req.body.email) {
-      res.status(400).send('Account already exists using this Email.');
+      res.status(400).render("error400", templateVars);
       return;
     }
   }
+  //generate random ID
   const ID = generateRandomString();
   userDatabase[ID] = {
     id: ID,
@@ -168,13 +181,14 @@ app.post("/register", (req, res) => {
 ///// Get requests
 ////////////////////////////////////
 
+//redirect to /urls page
 app.get("/", (req, res) => {
   let cookieID = req.session.user_id;
   let templateVars = {user: userDatabase[cookieID]};
   if (userDatabase[cookieID]) {
     res.redirect('/urls');
   } else {
-    res.redirect('/login');
+    res.redirect('/urls');
   }
 });
 
@@ -198,33 +212,50 @@ app.get("/urls/new", (req, res) => {
 });
 //register endpoint
 app.get('/register', (req, res) => {
-  res.render("url_register");
+  let cookieID = req.session.user_id;
+  let templateVars = {
+    user: userDatabase[cookieID],
+    password: userDatabase[bcrypt.hashSync("password", 10)]
+  };
+  res.render("url_register", templateVars);
 });
 
-// checks if shortURL redirects to longURL
-app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL.longURL);
-});
-
+//only show loged in users URLs
 app.get("/urls", (req, res) =>{
   let cookieID = req.session.user_id;
   let templateVars = { urls: urlsForUser(cookieID),
     user: userDatabase[cookieID]
   };
-  res.render("urls_index", templateVars);
+  if(userDatabase[cookieID]) {
+    res.status(200).render("urls_index", templateVars);
+  } else {
+    res.status(401).render("error401", templateVars);
+  }
 });
 
-//once redirected to this page, the shortURL and longURL are shown in a list.
+// checks if shortURL redirects to longURL
+//if invalid address is entered redirected to error message
+app.get("/u/:shortURL", (req, res) => {
+  let longURL = urlDatabase[req.params.shortURL];
+  let cookieID = req.session.user_id;
+  let templateVars = { user: userDatabase[cookieID],
+    urls: urlsForUser(cookieID)
+  };
+  if(!urlDatabase[req.params.shortURL]) {
+    res.status(404).render("error404", templateVars);
+  } else if (urlDatabase[req.params.shortURL]) {
+    res.redirect(longURL.longURL);
+  }
+});
+
 app.get("/urls/:id", (req, res) => {
   let cookieID = req.session.user_id;
-  let templateVars = { shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
-    user: userDatabase[cookieID]
-  };
-  res.render("urls_show", templateVars);
-});
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  if(urlDatabase[req.params.id]) {
+    let templateVars = { shortURL: req.params.id,
+      longURL: urlDatabase[req.params.id].longURL,
+      user: userDatabase[cookieID],
+      urls: urlsForUser(cookieID)
+    };
+    res.render("urls_show", templateVars);
+  }
 });

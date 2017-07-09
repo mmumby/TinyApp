@@ -5,6 +5,8 @@
   <title>TinyURL</title>
 </head>
 <body style="font-size:20px; padding:50px;">
+<% if (!user) { %>
+<% } else { %>
   <ul>
     <li> Short Version: <%= shortURL %></li>
     <li> Long Version: <%= longURL %></li>
@@ -13,5 +15,6 @@
       <button type="submit">Update</button>
     </form>
   </ul>
+<% } %>
 </body>
 </html>

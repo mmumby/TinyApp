@@ -3,15 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>TinyURL</title>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 </head>
 <body style="font-size:20px; padding:50px;">
 <h1>TinyApp</h1>
+<% if (!user) { %>
   <form action="/login" method="POST" style="margin:150px;">
   <h1>Login</h1>
       <input type="email" name="email" placeholder="Enter Email" style="width: 300px">
       <input type="password" name="password" placeholder="Enter Password" style="width: 300px">
       <button type="submit">Login</button>
   <h4> New here? <a href="/register"> Sign up!</a>  </h4>
-    </form>
+  </form>
+<% } else { %>
+    <p> Looks like you're already logged in! </p>
+    <p>Return to the URL<a href= "/urls"> menu</a> for more fun!</p>
+<% } %>
 </body>
 </html>

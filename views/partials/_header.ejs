@@ -3,17 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>TinyURL</title>
+  <!-- CSS (load bootstrap from a CDN) -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 </head>
 <body>
-<h1>TinyApp</h1>
-<% if (!user) { %>
-  <a href="/register">Register</a>
-  <a href="/login">Login</a>
-<% } else { %>
-<p>Welcome, <%= user.email %></p>
- <form method="POST" action="/logout">
- <button name="user_id" type="submit">Logout</button>
-</form>
-<% } %>
+  <h1>TinyApp</h1>
+  <% if (!user) { %>
+    <a href="/register">Register</a>
+    <a href="/login">Login</a>
+    <h2> Welcome to TinyApp!</h2>
+      <p> Need your links to be shorter? We're happy to help shorten them for you!</p>
+  <% } else { %>
+    <p>Welcome, <%= user.email %>!</p>
+    <form method="POST" action="/logout">
+    <button name="user_id" type="submit">Logout</button>
+    </form>
+  <% } %>
 </body>
 </html>

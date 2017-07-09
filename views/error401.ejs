@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title> TinyURL </title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+</head>
+  </head>
+  <body style="font-size:20px; padding:50px;">
+  <h1>TinyApp</h1>
+  <% if (!user) { %>
+    <h1>Uh Oh!</h1>
+        <p>Looks like you don't have access. Login <a href= "/login">here</a> to use our URL services!</p>
+  <% } %>
+  </body>
+</html>

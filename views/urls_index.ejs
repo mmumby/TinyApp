@@ -10,14 +10,14 @@
     <ul>
       <% for (let url in urls ) { %>
         <li><%= url %> - <%= urls[url].longURL %>
-          <a href="/urls/<%= url %>">edit</a>
           <form method="POST" action="/urls/<%= url %>/delete">
           <button type="submit">Delete URL </button>
+          <button><a href="/urls/<%= url %>">edit</a></button>
           </form>
         </li>
       <% }; %>
     </ul>
-    <h4>Create a new<a href="/urls/new"> ShortURL!</a>  </h4>
-    <% }; %>
+  <h4>Create a new<a href="/urls/new"> ShortURL!</a>  </h4>
+<% }; %>
 </body>
 </html>

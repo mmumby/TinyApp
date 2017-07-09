@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title> TinyURL </title>
-  </head>
-  <body style="font-size:20px; padding:50px;">
+<head>
+  <meta charset="UTF-8">
+  <title> TinyURL </title>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+ </head>
+<body style="font-size:20px; padding:50px;">
   <h1>TinyApp</h1>
-  <form action="/register" method="POST" style="margin:150px;">
-  <h1>Register</h1>
+  <% if (!user) { %>
+    <form action="/register" method="POST" style="margin:150px;">
+    <h1>Register</h1>
       <input type="email" name="email" placeholder="Enter Email" style="width: 300px">
       <input type="password" name="password" placeholder="Enter Password" style="width: 300px">
       <button type="submit">Submit</button>
     <h4> Already a user?<a href="/login"> Login!</a></h4>
     </form>
-  </body>
+  <% } else { %>
+    <p> Looks like you've already registered and logged in! </p>
+    <p>Return to the URL<a href= "/urls"> menu</a> for more fun!</p>
+  <% } %>
+</body>
 </html>
