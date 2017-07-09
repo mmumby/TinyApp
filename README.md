@@ -1,6 +1,6 @@
 ## TinyApp Project
 
-TinyApp is a fullstack web application build with Node.js and Express that allows users to shorten any Link.
+TinyApp is a fullstack web application built with Node.js and Express that allows users to shorten any Link.
 
 ## Dependencies
 
@@ -14,4 +14,4 @@ TinyApp is a fullstack web application build with Node.js and Express that allow
 
 ## Getting started!
 Install all dependencies using the `npm install` command
-Run the development web server using the `node express_server.js command
+Run the development web server using the `node express_server.js` command
